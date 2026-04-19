@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import jsPDF from "jspdf";
 
 const supabaseUrl = "https://sbmlhkniysjflvaxwomp.supabase.co";
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNibWxoa25peXNqZmx2YXh3b21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDQzMTMsImV4cCI6MjA5MjE4MDMxM30.Gc7IZt0czP6XM1FOsGUMVtyjoZZSZd1gzc2pwBLTNak";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const logoUrl = "/logo.jpg";
 
-const contractFinePrint = `1. PARTIES
+const defaultServiceAgreement = `1. PARTIES
 This Agreement is entered into between the Owner and Contractor: AtticSafe, 2511 Stenson Dr, Cedar Park, TX 78613.
 
 2. SCOPE OF WORK
@@ -80,7 +82,7 @@ This document represents the entire agreement between the parties. No verbal sta
 
 AtticSafe / (512) 766-9089 / office@atticsafe.com / 2511 Stenson Drive, Cedar Park, TX 78613`;
 
-const completionFinePrint = `Final Work Completion & Customer Acceptance
+const defaultCompletionFinePrint = `Final Work Completion & Customer Acceptance
 
 Customer Acceptance
 I / We have inspected the work performed at the property listed above and confirm that the services have been completed to our satisfaction. By signing below, we acknowledge that the project has been completed and accepted in its current condition.
@@ -88,12 +90,19 @@ I / We hereby release AtticSafe and its owners, employees, and representatives f
 
 AtticSafe | 2511 Stenson Drive, Cedar Park, TX 78613 | www.atticsafe.com | 512.766.9089`;
 
-const logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/320px-Placeholder_view_vector.svg.png";
-
 const cardStyle = { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 20, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" };
 const inputStyle = { width: "100%", padding: "10px 12px", borderRadius: 12, border: "1px solid var(--line)", background: "#fff" };
 const buttonStyle = { padding: "10px 14px", borderRadius: 12, border: "1px solid var(--line)", background: "white", cursor: "pointer" };
 const primaryButton = { ...buttonStyle, background: "var(--blue)", color: "white", borderColor: "var(--blue)" };
+
+function StatCard({ label, value }) {
+  return (
+    <div style={cardStyle}>
+      <div style={{ color: "var(--muted)", fontSize: 14 }}>{label}</div>
+      <div style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>{value}</div>
+    </div>
+  );
+}
 
 function App() {
   const [session, setSession] = useState(null);
@@ -102,13 +111,24 @@ function App() {
   const [authPassword, setAuthPassword] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [form, setForm] = useState({
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
+  const [activeTab, setActiveTab] = useState("customers");
+  const [settings, setSettings] = useState({
+    id: null,
+    service_agreement_fine_print: defaultServiceAgreement,
+    completion_report_fine_print: defaultCompletionFinePrint,
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  const emptyForm = {
     name: "", phone: "", email: "", address: "", stage: "Lead", notes: "",
     service_scope: "", completion_scope: "", contract_price: "", deposit: "",
-    balance_due: "", report_no: "", estimate_date: ""
-  });
+    balance_due: "", report_no: "", estimate_date: "", expected_start_date: "",
+    expected_finish_date: "", customer_signature: "", customer_sign_date: "",
+    contractor_signature: "Eli Solomon", contractor_sign_date: ""
+  };
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null));
@@ -117,19 +137,62 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (session) loadCustomers();
+    if (session) {
+      loadCustomers();
+      loadSettings();
+    }
   }, [session]);
 
   async function loadCustomers() {
-    setLoading(true);
+    setLoadingCustomers(true);
     const { data, error } = await supabase.from("customers").select("*").order("estimate_date", { ascending: false });
-    if (!error) {
-      setCustomers(data || []);
-      if ((data || []).length && !selectedId) setSelectedId(data[0].id);
-    } else {
+    if (error) {
       setAuthMessage(error.message);
+    } else {
+      setCustomers(data || []);
+      if ((data || []).length) setSelectedId((current) => current || data[0].id);
     }
-    setLoading(false);
+    setLoadingCustomers(false);
+  }
+
+  async function loadSettings() {
+    const { data, error } = await supabase.from("app_settings").select("*").limit(1).maybeSingle();
+    if (error && !String(error.message || "").toLowerCase().includes("no rows")) {
+      console.log(error.message);
+      return;
+    }
+    if (data) {
+      setSettings({
+        id: data.id,
+        service_agreement_fine_print: data.service_agreement_fine_print || defaultServiceAgreement,
+        completion_report_fine_print: data.completion_report_fine_print || defaultCompletionFinePrint,
+      });
+    }
+  }
+
+  async function saveSettings() {
+    setSavingSettings(true);
+    const payload = {
+      service_agreement_fine_print: settings.service_agreement_fine_print,
+      completion_report_fine_print: settings.completion_report_fine_print,
+    };
+    let result;
+    if (settings.id) {
+      result = await supabase.from("app_settings").update(payload).eq("id", settings.id).select().single();
+    } else {
+      result = await supabase.from("app_settings").insert(payload).select().single();
+    }
+    if (result.error) {
+      alert(result.error.message);
+    } else if (result.data) {
+      setSettings({
+        id: result.data.id,
+        service_agreement_fine_print: result.data.service_agreement_fine_print || defaultServiceAgreement,
+        completion_report_fine_print: result.data.completion_report_fine_print || defaultCompletionFinePrint,
+      });
+      alert("Settings saved.");
+    }
+    setSavingSettings(false);
   }
 
   async function handleAuth(e) {
@@ -137,7 +200,7 @@ function App() {
     setAuthMessage("");
     if (mode === "signup") {
       const { error } = await supabase.auth.signUp({ email: authEmail, password: authPassword });
-      setAuthMessage(error ? error.message : "Account created. Check email if confirmation is required, then sign in.");
+      setAuthMessage(error ? error.message : "Account created. If email confirmation is required, confirm it, then sign in.");
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password: authPassword });
       if (error) setAuthMessage(error.message);
@@ -156,24 +219,33 @@ function App() {
       deposit: form.deposit ? Number(form.deposit) : null,
       balance_due: form.balance_due ? Number(form.balance_due) : null,
       estimate_date: form.estimate_date || null,
+      expected_start_date: form.expected_start_date || null,
+      expected_finish_date: form.expected_finish_date || null,
+      customer_sign_date: form.customer_sign_date || null,
+      contractor_sign_date: form.contractor_sign_date || null,
     };
     const { error } = await supabase.from("customers").insert(payload);
     if (error) {
       alert(error.message);
       return;
     }
-    setForm({
-      name: "", phone: "", email: "", address: "", stage: "Lead", notes: "",
-      service_scope: "", completion_scope: "", contract_price: "", deposit: "",
-      balance_due: "", report_no: "", estimate_date: ""
-    });
-    loadCustomers();
+    setForm(emptyForm);
+    await loadCustomers();
   }
 
   async function updateSelected(field, value) {
-    setCustomers((prev) => prev.map((c) => c.id === selectedId ? { ...c, [field]: value } : c));
-    const updates = { [field]: ["contract_price","deposit","balance_due"].includes(field) ? (value ? Number(value) : null) : value };
-    const { error } = await supabase.from("customers").update(updates).eq("id", selectedId);
+    const selected = customers.find(c => c.id === selectedId);
+    if (!selected) return;
+    setCustomers(prev => prev.map(c => c.id === selectedId ? { ...c, [field]: value } : c));
+
+    const normalizedValue =
+      ["contract_price", "deposit", "balance_due"].includes(field)
+        ? (value ? Number(value) : null)
+        : (["estimate_date", "expected_start_date", "expected_finish_date", "customer_sign_date", "contractor_sign_date"].includes(field)
+          ? (value || null)
+          : value);
+
+    const { error } = await supabase.from("customers").update({ [field]: normalizedValue }).eq("id", selectedId);
     if (error) alert(error.message);
   }
 
@@ -186,7 +258,57 @@ function App() {
       return;
     }
     setSelectedId(null);
-    loadCustomers();
+    await loadCustomers();
+  }
+
+  function formatDate(value) {
+    if (!value) return "";
+    try {
+      const d = new Date(value);
+      return d.toLocaleDateString();
+    } catch {
+      return value;
+    }
+  }
+
+  function buildPdf(title, text) {
+    const pdf = new jsPDF({ unit: "pt", format: "letter" });
+    const margin = 40;
+    const pageWidth = pdf.internal.pageSize.getWidth() - margin * 2;
+    const lineHeight = 14;
+    let y = 45;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.text(title, margin, y);
+    y += 22;
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+
+    const lines = pdf.splitTextToSize(text, pageWidth);
+    lines.forEach((line) => {
+      if (y > 740) {
+        pdf.addPage();
+        y = 45;
+      }
+      pdf.text(line, margin, y);
+      y += lineHeight;
+    });
+
+    return pdf;
+  }
+
+  function downloadAgreementPdf() {
+    if (!selected) return;
+    const pdf = buildPdf("Service Agreement", contractText);
+    pdf.save(`agreement-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
+  }
+
+  function downloadCompletionPdf() {
+    if (!selected) return;
+    const pdf = buildPdf("Completion Report", completionText);
+    pdf.save(`completion-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
   }
 
   const selected = customers.find(c => c.id === selectedId) || null;
@@ -209,7 +331,11 @@ Owner: ${selected.name || ""}
 Property Address: ${selected.address || ""}
 Phone: ${selected.phone || ""}
 Email: ${selected.email || ""}
+Contractor: AtticSafe, 2511 Stenson Dr, Cedar Park, TX 78613
+
 Contract / Job #: ${selected.report_no || ""}
+Expected Start Date: ${formatDate(selected.expected_start_date)}
+Expected Completion Date: ${formatDate(selected.expected_finish_date)}
 
 CUSTOM SCOPE OF WORK
 ${selected.service_scope || ""}
@@ -218,7 +344,12 @@ Total Contract Price: $${selected.contract_price || ""}
 Deposit: $${selected.deposit || ""}
 Balance Due Upon Completion: $${selected.balance_due || ""}
 
-${contractFinePrint}` : "";
+Customer Signature: ${selected.customer_signature || "________________"}
+Customer Signature Date: ${formatDate(selected.customer_sign_date) || "________________"}
+Contractor Signature: ${selected.contractor_signature || "________________"}
+Contractor Signature Date: ${formatDate(selected.contractor_sign_date) || "________________"}
+
+${settings.service_agreement_fine_print || defaultServiceAgreement}` : "";
 
   const completionText = selected ? `FINAL WORK COMPLETION & CUSTOMER ACCEPTANCE
 
@@ -226,6 +357,10 @@ Project Information
 Contract / Job #: ${selected.report_no || ""}
 Customer Name(s): ${selected.name || ""}
 Property Address: ${selected.address || ""}
+Project Manager: Eli Solomon
+Project Manager Phone: (512) 766-9089
+Project Start Date: ${formatDate(selected.expected_start_date)}
+Project Completion Date: ${formatDate(selected.expected_finish_date)}
 
 Work Performed
 ${selected.completion_scope || ""}
@@ -235,34 +370,29 @@ Total Project Cost: $${selected.contract_price || ""}
 Deposit Previously Paid: $${selected.deposit || ""}
 Balance Paid Today: $${selected.balance_due || ""}
 
-${completionFinePrint}` : "";
+Customer Signature: ${selected.customer_signature || "________________"}
+Customer Signature Date: ${formatDate(selected.customer_sign_date) || "________________"}
+Contractor Signature: ${selected.contractor_signature || "________________"}
+Contractor Signature Date: ${formatDate(selected.contractor_sign_date) || "________________"}
 
-  function downloadText(filename, text) {
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 
   if (!session) {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
-        <div style={{ maxWidth: 980, width: "100%", display: "grid", gap: 24, gridTemplateColumns: "1.1fr 1fr" }}>
+        <div className="two-col" style={{ maxWidth: 980, width: "100%", display: "grid", gap: 24, gridTemplateColumns: "1.1fr 1fr" }}>
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <img src={logoUrl} alt="AtticSafe" style={{ width: 84, height: 84, borderRadius: 20, objectFit: "contain", background: "#fff", padding: 6, border: "1px solid var(--line)" }} />
               <div>
                 <div style={{ fontSize: 36, fontWeight: 700 }}>AtticSafe CRM</div>
-                <div style={{ color: "var(--muted)" }}>Secure login for leads, estimates, contracts, and completion reports.</div>
+                <div style={{ color: "var(--muted)" }}>Private login for leads, estimates, contracts, completion reports, and settings.</div>
               </div>
             </div>
             <div style={cardStyle}>
-              <div style={{ fontWeight: 700, marginBottom: 8 }}>What this version does</div>
+              <div style={{ fontWeight: 700, marginBottom: 8 }}>What this version includes</div>
               <div style={{ color: "var(--muted)", lineHeight: 1.7 }}>
-                Private login, live customer saving, dashboard, estimate scheduling, custom scope of work, completion report wording, and contract storage tied to your account.
+                Live customer saving, editable scope per customer, expected start and finish dates, PDF agreement and completion downloads, signature/date fields, and editable fine print saved in Supabase.
               </div>
             </div>
           </div>
@@ -285,126 +415,163 @@ ${completionFinePrint}` : "";
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gap: 24 }}>
+      <div style={{ maxWidth: 1440, margin: "0 auto", display: "grid", gap: 24 }}>
         <div style={{ ...cardStyle, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <img src={logoUrl} alt="AtticSafe" style={{ width: 64, height: 64, borderRadius: 16, objectFit: "contain", background: "#fff", padding: 4, border: "1px solid var(--line)" }} />
             <div>
               <div style={{ fontSize: 30, fontWeight: 700 }}>AtticSafe CRM</div>
-              <div style={{ color: "var(--muted)" }}>Dashboard, customers, estimates, contracts, and completion reports</div>
+              <div style={{ color: "var(--muted)" }}>Dashboard, customers, documents, and settings</div>
             </div>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ padding: "8px 12px", borderRadius: 999, background: "#ecfdf5", color: "#047857", border: "1px solid #a7f3d0" }}>{session.user.email}</div>
+            <button style={activeTab === "customers" ? primaryButton : buttonStyle} onClick={() => setActiveTab("customers")}>Customers</button>
+            <button style={activeTab === "documents" ? primaryButton : buttonStyle} onClick={() => setActiveTab("documents")}>Documents</button>
+            <button style={activeTab === "settings" ? primaryButton : buttonStyle} onClick={() => setActiveTab("settings")}>Settings</button>
             <button style={buttonStyle} onClick={logout}>Log out</button>
           </div>
         </div>
 
-        <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-          {[
-            ["Leads", totals.leads],
-            ["Estimates", totals.estimates],
-            ["Scheduled", totals.scheduled],
-            ["In Progress", totals.inProgress],
-            ["Completed", totals.completed],
-            ["Revenue", `$${totals.revenue.toLocaleString()}`],
-          ].map(([label, value]) => (
-            <div key={label} style={cardStyle}>
-              <div style={{ color: "var(--muted)", fontSize: 14 }}>{label}</div>
-              <div style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>{value}</div>
-            </div>
-          ))}
+        <div className="stats" style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+          <StatCard label="Leads" value={totals.leads} />
+          <StatCard label="Estimates" value={totals.estimates} />
+          <StatCard label="Scheduled" value={totals.scheduled} />
+          <StatCard label="In Progress" value={totals.inProgress} />
+          <StatCard label="Completed" value={totals.completed} />
+          <StatCard label="Revenue" value={`$${totals.revenue.toLocaleString()}`} />
         </div>
 
-        <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr 1.2fr 1fr" }}>
-          <div style={cardStyle}>
-            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Customers {loading ? "• Loading..." : ""}</div>
-            <div style={{ display: "grid", gap: 10, maxHeight: 650, overflow: "auto" }}>
-              {customers.map(c => (
-                <button key={c.id} onClick={() => setSelectedId(c.id)} style={{
-                  textAlign: "left", padding: 14, borderRadius: 16, border: c.id === selectedId ? "2px solid var(--blue)" : "1px solid var(--line)",
-                  background: "#fff", cursor: "pointer"
-                }}>
-                  <div style={{ fontWeight: 700 }}>{c.name || "Unnamed customer"}</div>
-                  <div style={{ fontSize: 14, color: "var(--muted)", marginTop: 4 }}>{c.address}</div>
-                  <div style={{ fontSize: 13, color: "var(--muted)", marginTop: 8 }}>{c.stage} • {c.phone}</div>
-                </button>
-              ))}
-              {!customers.length ? <div style={{ color: "var(--muted)" }}>No customers yet.</div> : null}
-            </div>
-          </div>
-
-          <div style={cardStyle}>
-            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Customer Info</div>
-            {selected ? (
-              <div style={{ display: "grid", gap: 12 }}>
-                <input style={inputStyle} value={selected.name || ""} onChange={e => updateSelected("name", e.target.value)} placeholder="Name" />
-                <input style={inputStyle} value={selected.phone || ""} onChange={e => updateSelected("phone", e.target.value)} placeholder="Phone" />
-                <input style={inputStyle} value={selected.email || ""} onChange={e => updateSelected("email", e.target.value)} placeholder="Email" />
-                <input style={inputStyle} value={selected.address || ""} onChange={e => updateSelected("address", e.target.value)} placeholder="Address" />
-                <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
-                  <select style={inputStyle} value={selected.stage || "Lead"} onChange={e => updateSelected("stage", e.target.value)}>
-                    <option>Lead</option>
-                    <option>Estimate</option>
-                    <option>Scheduled</option>
-                    <option>In Progress</option>
-                    <option>Completed</option>
-                  </select>
-                  <input style={inputStyle} type="date" value={selected.estimate_date ? String(selected.estimate_date).slice(0,10) : ""} onChange={e => updateSelected("estimate_date", e.target.value)} />
-                </div>
-                <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr 1fr" }}>
-                  <input style={inputStyle} value={selected.contract_price ?? ""} onChange={e => updateSelected("contract_price", e.target.value)} placeholder="Contract price" />
-                  <input style={inputStyle} value={selected.deposit ?? ""} onChange={e => updateSelected("deposit", e.target.value)} placeholder="Deposit" />
-                  <input style={inputStyle} value={selected.balance_due ?? ""} onChange={e => updateSelected("balance_due", e.target.value)} placeholder="Balance due" />
-                </div>
-                <input style={inputStyle} value={selected.report_no || ""} onChange={e => updateSelected("report_no", e.target.value)} placeholder="Report / Job #" />
-                <textarea style={{...inputStyle, minHeight: 90}} value={selected.notes || ""} onChange={e => updateSelected("notes", e.target.value)} placeholder="Notes" />
-                <textarea style={{...inputStyle, minHeight: 120}} value={selected.service_scope || ""} onChange={e => updateSelected("service_scope", e.target.value)} placeholder="Contract scope of work" />
-                <textarea style={{...inputStyle, minHeight: 100}} value={selected.completion_scope || ""} onChange={e => updateSelected("completion_scope", e.target.value)} placeholder="Completion report work performed" />
-                <div style={{ display: "flex", gap: 10 }}>
-                  <button style={{...buttonStyle, color: "white", background: "var(--danger)", borderColor: "var(--danger)"}} onClick={deleteSelected}>Delete</button>
-                </div>
+        {activeTab === "customers" ? (
+          <div className="three-col" style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr 1.2fr 1fr" }}>
+            <div style={cardStyle}>
+              <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Customers {loadingCustomers ? "• Loading..." : ""}</div>
+              <div style={{ display: "grid", gap: 10, maxHeight: 700, overflow: "auto" }}>
+                {customers.map(c => (
+                  <button key={c.id} onClick={() => setSelectedId(c.id)} style={{
+                    textAlign: "left", padding: 14, borderRadius: 16, border: c.id === selectedId ? "2px solid var(--blue)" : "1px solid var(--line)",
+                    background: "#fff", cursor: "pointer"
+                  }}>
+                    <div style={{ fontWeight: 700 }}>{c.name || "Unnamed customer"}</div>
+                    <div style={{ fontSize: 14, color: "var(--muted)", marginTop: 4 }}>{c.address}</div>
+                    <div style={{ fontSize: 13, color: "var(--muted)", marginTop: 8 }}>{c.stage} • {c.phone}</div>
+                  </button>
+                ))}
+                {!customers.length ? <div style={{ color: "var(--muted)" }}>No customers yet.</div> : null}
               </div>
-            ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
-          </div>
-
-          <div style={cardStyle}>
-            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Add Customer</div>
-            <form onSubmit={addCustomer} style={{ display: "grid", gap: 12 }}>
-              <input style={inputStyle} value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Name" />
-              <input style={inputStyle} value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="Phone" />
-              <input style={inputStyle} value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="Email" />
-              <input style={inputStyle} value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="Address" />
-              <select style={inputStyle} value={form.stage} onChange={e => setForm({...form, stage: e.target.value})}>
-                <option>Lead</option>
-                <option>Estimate</option>
-                <option>Scheduled</option>
-                <option>In Progress</option>
-                <option>Completed</option>
-              </select>
-              <input style={inputStyle} type="date" value={form.estimate_date} onChange={e => setForm({...form, estimate_date: e.target.value})} />
-              <textarea style={{...inputStyle, minHeight: 90}} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Lead notes" />
-              <button type="submit" style={primaryButton}>Save customer</button>
-            </form>
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr 1fr" }}>
-          <div style={cardStyle}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12 }}>
-              <div style={{ fontSize: 22, fontWeight: 700 }}>Service Agreement</div>
-              <button style={buttonStyle} onClick={() => selected && downloadText(`contract-${selected.name || "customer"}.txt`, contractText)}>Download</button>
             </div>
-            <pre style={{ whiteSpace: "pre-wrap", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 14, lineHeight: 1.65, margin: 0 }}>{contractText || "Select a customer to preview contract."}</pre>
-          </div>
-          <div style={cardStyle}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12 }}>
-              <div style={{ fontSize: 22, fontWeight: 700 }}>Completion Report</div>
-              <button style={buttonStyle} onClick={() => selected && downloadText(`completion-${selected.name || "customer"}.txt`, completionText)}>Download</button>
+
+            <div style={cardStyle}>
+              <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Customer Info</div>
+              {selected ? (
+                <div style={{ display: "grid", gap: 12 }}>
+                  <input style={inputStyle} value={selected.name || ""} onChange={e => updateSelected("name", e.target.value)} placeholder="Name" />
+                  <input style={inputStyle} value={selected.phone || ""} onChange={e => updateSelected("phone", e.target.value)} placeholder="Phone" />
+                  <input style={inputStyle} value={selected.email || ""} onChange={e => updateSelected("email", e.target.value)} placeholder="Email" />
+                  <input style={inputStyle} value={selected.address || ""} onChange={e => updateSelected("address", e.target.value)} placeholder="Address" />
+
+                  <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+                    <select style={inputStyle} value={selected.stage || "Lead"} onChange={e => updateSelected("stage", e.target.value)}>
+                      <option>Lead</option>
+                      <option>Estimate</option>
+                      <option>Scheduled</option>
+                      <option>In Progress</option>
+                      <option>Completed</option>
+                    </select>
+                    <input style={inputStyle} type="date" value={selected.estimate_date ? String(selected.estimate_date).slice(0,10) : ""} onChange={e => updateSelected("estimate_date", e.target.value)} />
+                  </div>
+
+                  <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+                    <input style={inputStyle} type="date" value={selected.expected_start_date ? String(selected.expected_start_date).slice(0,10) : ""} onChange={e => updateSelected("expected_start_date", e.target.value)} />
+                    <input style={inputStyle} type="date" value={selected.expected_finish_date ? String(selected.expected_finish_date).slice(0,10) : ""} onChange={e => updateSelected("expected_finish_date", e.target.value)} />
+                  </div>
+
+                  <div className="three-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr 1fr" }}>
+                    <input style={inputStyle} value={selected.contract_price ?? ""} onChange={e => updateSelected("contract_price", e.target.value)} placeholder="Contract price" />
+                    <input style={inputStyle} value={selected.deposit ?? ""} onChange={e => updateSelected("deposit", e.target.value)} placeholder="Deposit" />
+                    <input style={inputStyle} value={selected.balance_due ?? ""} onChange={e => updateSelected("balance_due", e.target.value)} placeholder="Balance due" />
+                  </div>
+
+                  <input style={inputStyle} value={selected.report_no || ""} onChange={e => updateSelected("report_no", e.target.value)} placeholder="Report / Job #" />
+                  <textarea style={{...inputStyle, minHeight: 90}} value={selected.notes || ""} onChange={e => updateSelected("notes", e.target.value)} placeholder="Notes" />
+                  <textarea style={{...inputStyle, minHeight: 120}} value={selected.service_scope || ""} onChange={e => updateSelected("service_scope", e.target.value)} placeholder="Contract scope of work" />
+                  <textarea style={{...inputStyle, minHeight: 100}} value={selected.completion_scope || ""} onChange={e => updateSelected("completion_scope", e.target.value)} placeholder="Completion report work performed" />
+
+                  <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+                    <input style={inputStyle} value={selected.customer_signature || ""} onChange={e => updateSelected("customer_signature", e.target.value)} placeholder="Customer signature name" />
+                    <input style={inputStyle} type="date" value={selected.customer_sign_date ? String(selected.customer_sign_date).slice(0,10) : ""} onChange={e => updateSelected("customer_sign_date", e.target.value)} />
+                    <input style={inputStyle} value={selected.contractor_signature || ""} onChange={e => updateSelected("contractor_signature", e.target.value)} placeholder="Contractor signature name" />
+                    <input style={inputStyle} type="date" value={selected.contractor_sign_date ? String(selected.contractor_sign_date).slice(0,10) : ""} onChange={e => updateSelected("contractor_sign_date", e.target.value)} />
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button style={{...buttonStyle, color: "white", background: "var(--danger)", borderColor: "var(--danger)"}} onClick={deleteSelected}>Delete</button>
+                  </div>
+                </div>
+              ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
             </div>
-            <pre style={{ whiteSpace: "pre-wrap", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 14, lineHeight: 1.65, margin: 0 }}>{completionText || "Select a customer to preview completion report."}</pre>
+
+            <div style={cardStyle}>
+              <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Add Customer</div>
+              <form onSubmit={addCustomer} style={{ display: "grid", gap: 12 }}>
+                <input style={inputStyle} value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Name" />
+                <input style={inputStyle} value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="Phone" />
+                <input style={inputStyle} value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="Email" />
+                <input style={inputStyle} value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="Address" />
+                <select style={inputStyle} value={form.stage} onChange={e => setForm({...form, stage: e.target.value})}>
+                  <option>Lead</option>
+                  <option>Estimate</option>
+                  <option>Scheduled</option>
+                  <option>In Progress</option>
+                  <option>Completed</option>
+                </select>
+                <input style={inputStyle} type="date" value={form.estimate_date} onChange={e => setForm({...form, estimate_date: e.target.value})} />
+                <input style={inputStyle} type="date" value={form.expected_start_date} onChange={e => setForm({...form, expected_start_date: e.target.value})} />
+                <input style={inputStyle} type="date" value={form.expected_finish_date} onChange={e => setForm({...form, expected_finish_date: e.target.value})} />
+                <textarea style={{...inputStyle, minHeight: 90}} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Lead notes" />
+                <button type="submit" style={primaryButton}>Save customer</button>
+              </form>
+            </div>
           </div>
-        </div>
+        ) : null}
+
+        {activeTab === "documents" ? (
+          <div className="two-col" style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr 1fr" }}>
+            <div style={cardStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12 }}>
+                <div style={{ fontSize: 22, fontWeight: 700 }}>Service Agreement</div>
+                <button style={buttonStyle} onClick={downloadAgreementPdf}>Download PDF</button>
+              </div>
+              <pre style={{ whiteSpace: "pre-wrap", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 14, lineHeight: 1.65 }}>{contractText || "Select a customer to preview agreement."}</pre>
+            </div>
+            <div style={cardStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12 }}>
+                <div style={{ fontSize: 22, fontWeight: 700 }}>Completion Report</div>
+                <button style={buttonStyle} onClick={downloadCompletionPdf}>Download PDF</button>
+              </div>
+              <pre style={{ whiteSpace: "pre-wrap", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 14, lineHeight: 1.65 }}>{completionText || "Select a customer to preview completion report."}</pre>
+            </div>
+          </div>
+        ) : null}
+
+        {activeTab === "settings" ? (
+          <div style={cardStyle}>
+            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 16 }}>Global Fine Print Settings</div>
+            <div style={{ display: "grid", gap: 16 }}>
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>Service Agreement Fine Print</div>
+                <textarea style={{ ...inputStyle, minHeight: 320 }} value={settings.service_agreement_fine_print} onChange={(e) => setSettings({ ...settings, service_agreement_fine_print: e.target.value })} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>Completion Report Fine Print</div>
+                <textarea style={{ ...inputStyle, minHeight: 220 }} value={settings.completion_report_fine_print} onChange={(e) => setSettings({ ...settings, completion_report_fine_print: e.target.value })} />
+              </div>
+              <div>
+                <button style={primaryButton} onClick={saveSettings}>{savingSettings ? "Saving..." : "Save Settings"}</button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

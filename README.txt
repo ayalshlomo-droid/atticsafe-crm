@@ -1,19 +1,17 @@
-AtticSafe CRM deploy package
+AtticSafe CRM final update
 
-Vercel deploy:
-1. Unzip this folder.
-2. Go to Vercel dashboard.
-3. Click Add New -> Project.
-4. Import this folder or drag/drop it.
-5. Framework preset: Vite.
-6. Click Deploy.
+Before redeploy:
+1. Open Supabase -> SQL Editor.
+2. Run the file supabase_update.sql.
 
-First login:
-- Open the live site.
-- Click "Need an account? Create one".
-- Use your email and password.
-- Then sign in.
+Redeploy:
+1. Replace the files in your GitHub repo with this package.
+2. Commit changes.
+3. Vercel will auto-redeploy.
 
-Important:
-- This package already includes your Supabase URL and anon key.
-- Your customers table must already exist in Supabase with RLS enabled.
+What this version adds:
+- correct local logo
+- expected start / finish dates
+- PDF download for agreement and completion report
+- customer and contractor signature + date fields
+- global editable fine print in Settings saved in Supabase
