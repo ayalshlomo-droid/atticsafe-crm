@@ -113,6 +113,7 @@ function App() {
   const [customers, setCustomers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [loadingCustomers, setLoadingCustomers] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState("");
   const [activeTab, setActiveTab] = useState("customers");
   const [settings, setSettings] = useState({
     id: null,
@@ -311,6 +312,11 @@ function App() {
     pdf.save(`completion-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
   }
 
+  const filteredCustomers = customers.filter((c) => {
+  const q = customerSearch.trim().toLowerCase();
+  if (!q) return true;
+  return [c.name, c.phone, c.email].join(" ").toLowerCase().includes(q);
+});
   const selected = customers.find(c => c.id === selectedId) || null;
 
   const totals = useMemo(() => {
@@ -446,8 +452,14 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
           <div className="three-col" style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr 1.2fr 1fr" }}>
             <div style={cardStyle}>
               <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Customers {loadingCustomers ? "• Loading..." : ""}</div>
+              <input
+  style={{ ...inputStyle, marginBottom: 12 }}
+  value={customerSearch}
+  onChange={(e) => setCustomerSearch(e.target.value)}
+  placeholder="Search by name, phone, or email"
+/>
               <div style={{ display: "grid", gap: 10, maxHeight: 700, overflow: "auto" }}>
-                {customers.map(c => (
+                {filteredCustomers.map(c => (
                   <button key={c.id} onClick={() => setSelectedId(c.id)} style={{
                     textAlign: "left", padding: 14, borderRadius: 16, border: c.id === selectedId ? "2px solid var(--blue)" : "1px solid var(--line)",
                     background: "#fff", cursor: "pointer"
@@ -457,7 +469,7 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                     <div style={{ fontSize: 13, color: "var(--muted)", marginTop: 8 }}>{c.stage} • {c.phone}</div>
                   </button>
                 ))}
-                {!customers.length ? <div style={{ color: "var(--muted)" }}>No customers yet.</div> : null}
+               {!filteredCustomers.length ? <div style={{ color: "var(--muted)" }}>No matching customers.</div> : null}
               </div>
             </div>
 
