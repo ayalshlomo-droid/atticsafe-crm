@@ -374,7 +374,7 @@ y += 40;
 y = pageHeight - 100;
 
 // SIGNATURE AREA
-y = pageHeight - 220;
+y = pageHeight - 250;
 
 let rightX = pageWidth - margin - 220;
 
