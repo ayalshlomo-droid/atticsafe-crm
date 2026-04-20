@@ -224,6 +224,56 @@ function App() {
       expected_finish_date: form.expected_finish_date || null,
       customer_sign_date: form.customer_sign_date || null,
       contractor_sign_date: form.contractor_sign_date || null,
+    };
+    const { error } = await supabase.from("customers").insert(payload);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setForm(emptyForm);
+    await loadCustomers();
+  }
+
+  async function updateSelected(field, value) {
+    const selected = customers.find(c => c.id === selectedId);
+    if (!selected) return;
+    setCustomers(prev => prev.map(c => c.id === selectedId ? { ...c, [field]: value } : c));
+
+    const normalizedValue =
+      ["contract_price", "deposit", "balance_due"].includes(field)
+        ? (value ? Number(value) : null)
+        : (["estimate_date", "expected_start_date", "expected_finish_date", "customer_sign_date", "contractor_sign_date"].includes(field)
+          ? (value || null)
+          : value);
+
+    const { error } = await supabase.from("customers").update({ [field]: normalizedValue }).eq("id", selectedId);
+    if (error) alert(error.message);
+  }
+
+  async function deleteSelected() {
+    if (!selectedId) return;
+    if (!window.confirm("Delete this customer?")) return;
+    const { error } = await supabase.from("customers").delete().eq("id", selectedId);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setSelectedId(null);
+    await loadCustomers();
+  }
+
+  function formatDate(value) {
+    if (!value) return "";
+    try {
+      const d = new Date(value);
+      return d.toLocaleDateString();
+    } catch {
+      return value;
+    }
+  }
+
+  function buildPdf(title, text) {
+    const pdf = new jsPDF({ unit: "pt", format: "letter" });
     const margin = 40;
     const pageWidth = pdf.internal.pageSize.getWidth() - margin * 2;
     const lineHeight = 14;
