@@ -348,32 +348,50 @@ lines.forEach((line) => {
 y += 18;
 
 pdf.setDrawColor(180);
-pdf.rect(margin, y, contentWidth, 70);
+// PRICING SECTION
+y += 20;
 
 pdf.setFont("helvetica", "bold");
-pdf.setFontSize(11);
-pdf.text("PROJECT PRICING", margin + 12, y + 18);
+pdf.setFontSize(12);
+pdf.text("PROJECT PRICING", margin, y);
+
+y += 20;
 
 pdf.setFont("helvetica", "normal");
-pdf.setFontSize(10);
-pdf.text("Total Contract Price: ____________________", margin + 12, y + 38);
-pdf.text("Deposit: ________________________________", margin + 12, y + 54);
-pdf.text("Balance Due Upon Completion: ____________", margin + 12, y + 70);
+pdf.setFontSize(11);
+
+pdf.text(`Total Contract Price: $${selectedDetails.total_price || ""}`, margin, y);
+y += 18;
+
+pdf.text(`Deposit: $${selectedDetails.deposit || ""}`, margin, y);
+y += 18;
+
+pdf.text(`Balance Due Upon Completion: $${selectedDetails.balance_due || ""}`, margin, y);
+y += 40;
+
+
+// 👉 FORCE SIGNATURES TO BOTTOM
+y = pageHeight - 100;
 
 // SIGNATURE AREA
-y += 105;
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(10);
 
+// Customer
 pdf.line(margin, y, margin + 200, y);
 pdf.text("Customer Signature", margin, y + 15);
 
-pdf.line(margin + 230, y, margin + 360, y);
-pdf.text("Date", margin + 230, y + 15);
+// Date
+pdf.line(margin + 220, y, margin + 320, y);
+pdf.text("Date", margin + 220, y + 15);
 
+// Contractor
 pdf.line(pageWidth - margin - 200, y, pageWidth - margin, y);
 pdf.text("Contractor Signature", pageWidth - margin - 200, y + 15);
 
-pdf.line(pageWidth - margin - 330, y, pageWidth - margin - 220, y);
-pdf.text("Date", pageWidth - margin - 330, y + 15);
+// Date
+pdf.line(pageWidth - margin - 320, y, pageWidth - margin - 220, y);
+pdf.text("Date", pageWidth - margin - 320, y + 15);
   return pdf;
 }
 
