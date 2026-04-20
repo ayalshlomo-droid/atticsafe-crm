@@ -374,24 +374,57 @@ y += 40;
 y = pageHeight - 100;
 
 // SIGNATURE AREA
+// SIGNATURE AREA
+y = pageHeight - 140;
+
 pdf.setFont("helvetica", "normal");
 pdf.setFontSize(10);
 
-// Customer
-pdf.line(margin, y, margin + 200, y);
-pdf.text("Customer Signature", margin, y + 15);
+// CONTRACTOR (LEFT SIDE)
+pdf.text("Contractor Name", margin, y);
+pdf.line(margin, y + 15, margin + 200, y + 15);
 
-// Date
-pdf.line(margin + 220, y, margin + 320, y);
-pdf.text("Date", margin + 220, y + 15);
+pdf.text("Contractor Signature", margin, y + 40);
+pdf.line(margin, y + 55, margin + 200, y + 55);
 
-// Contractor
-pdf.line(pageWidth - margin - 200, y, pageWidth - margin, y);
-pdf.text("Contractor Signature", pageWidth - margin - 200, y + 15);
+pdf.text("Date", margin, y + 80);
+pdf.line(margin, y + 95, margin + 120, y + 95);
 
-// Date
-pdf.line(pageWidth - margin - 320, y, pageWidth - margin - 220, y);
-pdf.text("Date", pageWidth - margin - 320, y + 15);
+
+// CUSTOMER 1 (RIGHT SIDE)
+let rightX = pageWidth - margin - 220;
+
+pdf.setFont("helvetica", "bold");
+pdf.text("Customer 1", rightX, y);
+
+pdf.setFont("helvetica", "normal");
+
+pdf.text("Name", rightX, y + 20);
+pdf.line(rightX, y + 35, rightX + 200, y + 35);
+
+pdf.text("Signature", rightX, y + 60);
+pdf.line(rightX, y + 75, rightX + 200, y + 75);
+
+pdf.text("Date", rightX, y + 100);
+pdf.line(rightX, y + 115, rightX + 140, y + 115);
+
+
+// CUSTOMER 2 (UNDER CUSTOMER 1)
+let y2 = y + 140;
+
+pdf.setFont("helvetica", "bold");
+pdf.text("Customer 2", rightX, y2);
+
+pdf.setFont("helvetica", "normal");
+
+pdf.text("Name", rightX, y2 + 20);
+pdf.line(rightX, y2 + 35, rightX + 200, y2 + 35);
+
+pdf.text("Signature", rightX, y2 + 60);
+pdf.line(rightX, y2 + 75, rightX + 200, y2 + 75);
+
+pdf.text("Date", rightX, y2 + 100);
+pdf.line(rightX, y2 + 115, rightX + 140, y2 + 115);
   return pdf;
 }
 
