@@ -360,13 +360,13 @@ y += 20;
 pdf.setFont("helvetica", "normal");
 pdf.setFontSize(11);
 
-pdf.text(`Total Contract Price: $${selectedDetails.total_price || ""}`, margin, y);
+pdf.text(`Total Contract Price: $${selected.contract_price || ""}`, margin, y);
 y += 18;
 
-pdf.text(`Deposit: $${selectedDetails.deposit || ""}`, margin, y);
+pdf.text(`Deposit: $${selected.deposit || ""}`, margin, y);
 y += 18;
 
-pdf.text(`Balance Due Upon Completion: $${selectedDetails.balance_due || ""}`, margin, y);
+pdf.text(`Balance Due Upon Completion: $${selected.balance_due || ""}`, margin, y);
 y += 40;
 
 
