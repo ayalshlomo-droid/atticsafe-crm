@@ -353,6 +353,7 @@ y += 20;
 
 pdf.setFont("helvetica", "bold");
 pdf.setFontSize(12);
+    if (title !== "Completion Report") {
 pdf.text("PROJECT PRICING", margin, y);
 
 y += 20;
@@ -368,6 +369,7 @@ y += 18;
 
 pdf.text(`Balance Due Upon Completion: $${selected.balance_due || ""}`, margin, y);
 y += 40;
+      }
 
 
 // 👉 FORCE SIGNATURES TO BOTTOM
@@ -474,11 +476,6 @@ FINAL PAYMENT SUMMARY
 Total Project Cost: $${selected.contract_price || ""}
 Deposit Previously Paid: $${selected.deposit || ""}
 Balance Paid Today: $${selected.balance_due || ""}
-
-Customer Signature: ${selected.customer_signature || "________________"}
-Customer Signature Date: ${formatDate(selected.customer_sign_date) || "________________"}
-Contractor Signature: ${selected.contractor_signature || "________________"}
-Contractor Signature Date: ${formatDate(selected.contractor_sign_date) || "________________"}
 
 ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 
