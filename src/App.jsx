@@ -318,7 +318,7 @@ pdf.setFontSize(10);
 const lines = pdf.splitTextToSize(text, contentWidth);
 
 lines.forEach((line) => {
-  if (y > pageHeight - 220) {
+  if (y > pageHeight - 200) {
     pdf.addPage();
     y = 40;
   }
