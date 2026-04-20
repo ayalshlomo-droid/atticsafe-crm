@@ -273,32 +273,70 @@ function App() {
   }
 
   function buildPdf(title, text) {
-    const pdf = new jsPDF({ unit: "pt", format: "letter" });
-    const margin = 40;
-    const pageWidth = pdf.internal.pageSize.getWidth() - margin * 2;
-    const lineHeight = 14;
-    let y = 45;
+  const pdf = new jsPDF({ unit: "pt", format: "letter" });
 
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(16);
-    pdf.text(title, margin, y);
-    y += 22;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 40;
+  const contentWidth = pageWidth - margin * 2;
 
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(10);
+  let y = 40;
 
-    const lines = pdf.splitTextToSize(text, pageWidth);
-    lines.forEach((line) => {
-      if (y > 740) {
-        pdf.addPage();
-        y = 45;
-      }
-      pdf.text(line, margin, y);
-      y += lineHeight;
-    });
+  // LOGO
+  try {
+    pdf.addImage(logoUrl, "JPEG", margin, y, 120, 60);
+  } catch (e) {}
 
-    return pdf;
-  }
+  // HEADER
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(20);
+  pdf.text("AtticSafe", margin + 140, 60);
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(10);
+  pdf.text("2511 Stenson Dr, Cedar Park, TX", margin + 140, 75);
+  pdf.text("(512) 766-9089 • office@atticsafe.com", margin + 140, 88);
+
+  y = 120;
+
+  // LINE
+  pdf.setDrawColor(200);
+  pdf.line(margin, y, pageWidth - margin, y);
+  y += 25;
+
+  // TITLE
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(16);
+  pdf.text(title, margin, y);
+  y += 20;
+
+  // BODY
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(10);
+
+  const lines = pdf.splitTextToSize(text, contentWidth);
+
+  lines.forEach((line) => {
+    if (y > pageHeight - 60) {
+      pdf.addPage();
+      y = 40;
+    }
+
+    pdf.text(line, margin, y);
+    y += 14;
+  });
+
+  // SIGNATURE LINES
+  y += 30;
+
+  pdf.line(margin, y, margin + 200, y);
+  pdf.text("Customer Signature", margin, y + 15);
+
+  pdf.line(pageWidth - margin - 200, y, pageWidth - margin, y);
+  pdf.text("Contractor Signature", pageWidth - margin - 200, y + 15);
+
+  return pdf;
+}
 
   function downloadAgreementPdf() {
     if (!selected) return;
