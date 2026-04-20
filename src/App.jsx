@@ -407,6 +407,46 @@ pdf.line(rightX + 35, y + 90, rightX + 140, y + 90);
 }
 
   function downloadAgreementPdf() {
+    
+  if (!selected || !selected.email) {
+    alert("Customer email is missing.");
+    return;
+  }
+    async function sendAgreementEmail() {
+
+  try {
+    const pdf = buildPdf("Service Agreement", contractText);
+    const pdfBase64 = pdf.output("datauristring").split(",")[1];
+
+    const response = await fetch("/api/send-agreement", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        to: selected.email,
+        subject: `AtticSafe Service Agreement - ${selected.name || "Customer"}`,
+        html: `
+          <p>Hello ${selected.name || ""},</p>
+          <p>Please find your AtticSafe service agreement attached.</p>
+          <p>Thank you,<br/>AtticSafe</p>
+        `,
+        pdfBase64,
+        filename: `agreement-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to send email");
+    }
+
+    alert("Agreement sent successfully.");
+  } catch (error) {
+    alert(error.message || "Failed to send agreement.");
+  }
+}
     if (!selected) return;
     const pdf = buildPdf("Service Agreement", contractText);
     pdf.save(`agreement-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
@@ -417,6 +457,45 @@ pdf.line(rightX + 35, y + 90, rightX + 140, y + 90);
     const pdf = buildPdf("Completion Report", completionText);
     pdf.save(`completion-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
   }
+  async function sendCompletionEmail() {
+  if (!selected || !selected.email) {
+    alert("Customer email is missing.");
+    return;
+  }
+
+  try {
+    const pdf = buildPdf("Completion Report", completionText);
+    const pdfBase64 = pdf.output("datauristring").split(",")[1];
+
+    const response = await fetch("/api/send-agreement", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        to: selected.email,
+        subject: `AtticSafe Completion Report - ${selected.name || "Customer"}`,
+        html: `
+          <p>Hello ${selected.name || ""},</p>
+          <p>Please find your completion report attached.</p>
+          <p>Thank you,<br/>AtticSafe</p>
+        `,
+        pdfBase64,
+        filename: `completion-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to send email");
+    }
+
+    alert("Completion report sent successfully.");
+  } catch (error) {
+    alert(error.message || "Failed to send completion report.");
+  }
+}
 
   const filteredCustomers = customers.filter((c) => {
   const q = customerSearch.trim().toLowerCase();
@@ -649,6 +728,7 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12 }}>
                 <div style={{ fontSize: 22, fontWeight: 700 }}>Service Agreement</div>
                 <button style={buttonStyle} onClick={downloadAgreementPdf}>Download PDF</button>
+                <button style={buttonStyle} onClick={sendAgreementEmail}>Send Agreement</button>
               </div>
               <pre style={{ whiteSpace: "pre-wrap", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 14, lineHeight: 1.65 }}>{contractText || "Select a customer to preview agreement."}</pre>
             </div>
@@ -656,6 +736,9 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12 }}>
                 <div style={{ fontSize: 22, fontWeight: 700 }}>Completion Report</div>
                 <button style={buttonStyle} onClick={downloadCompletionPdf}>Download PDF</button>
+                <button style={buttonStyle} onClick={sendCompletionEmail}>
+  Send Completion Report
+</button>
               </div>
               <pre style={{ whiteSpace: "pre-wrap", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 14, lineHeight: 1.65 }}>{completionText || "Select a customer to preview completion report."}</pre>
             </div>
