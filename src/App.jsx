@@ -374,13 +374,11 @@ y += 40;
 y = pageHeight - 100;
 
 // SIGNATURE AREA
-// SIGNATURE AREA
-y = pageHeight - 140;
+y = pageHeight - 220;
 
-pdf.setFont("helvetica", "normal");
-pdf.setFontSize(10);
+let rightX = pageWidth - margin - 220;
 
-// CONTRACTOR (LEFT SIDE)
+// CONTRACTOR (LEFT)
 pdf.text("Contractor Name", margin, y);
 pdf.line(margin, y + 15, margin + 200, y + 15);
 
@@ -388,16 +386,11 @@ pdf.text("Contractor Signature", margin, y + 40);
 pdf.line(margin, y + 55, margin + 200, y + 55);
 
 pdf.text("Date", margin, y + 80);
-pdf.line(margin, y + 95, margin + 120, y + 95);
+pdf.line(margin + 40, y + 80, margin + 140, y + 80);
 
 
-// CUSTOMER 1 (RIGHT SIDE)
-let rightX = pageWidth - margin - 220;
-
-pdf.setFont("helvetica", "bold");
+// CUSTOMER 1 (RIGHT)
 pdf.text("Customer 1", rightX, y);
-
-pdf.setFont("helvetica", "normal");
 
 pdf.text("Name", rightX, y + 20);
 pdf.line(rightX, y + 35, rightX + 200, y + 35);
@@ -406,16 +399,26 @@ pdf.text("Signature", rightX, y + 60);
 pdf.line(rightX, y + 75, rightX + 200, y + 75);
 
 pdf.text("Date", rightX, y + 100);
-pdf.line(rightX, y + 115, rightX + 140, y + 115);
+pdf.line(rightX + 40, y + 100, rightX + 140, y + 100);
 
 
-// CUSTOMER 2 (UNDER CUSTOMER 1)
-let y2 = y + 140;
+// CUSTOMER 2 (BOTTOM LEFT)
+let y2 = y + 130;
 
-pdf.setFont("helvetica", "bold");
-pdf.text("Customer 2", rightX, y2);
+pdf.text("Customer 2", margin, y2);
 
-pdf.setFont("helvetica", "normal");
+pdf.text("Name", margin, y2 + 20);
+pdf.line(margin, y2 + 35, margin + 200, y2 + 35);
+
+pdf.text("Signature", margin, y2 + 60);
+pdf.line(margin, y2 + 75, margin + 200, y2 + 75);
+
+pdf.text("Date", margin, y2 + 100);
+pdf.line(margin + 40, y2 + 100, margin + 140, y2 + 100);
+
+
+// WITNESS (BOTTOM RIGHT)
+pdf.text("Witness", rightX, y2);
 
 pdf.text("Name", rightX, y2 + 20);
 pdf.line(rightX, y2 + 35, rightX + 200, y2 + 35);
@@ -424,7 +427,7 @@ pdf.text("Signature", rightX, y2 + 60);
 pdf.line(rightX, y2 + 75, rightX + 200, y2 + 75);
 
 pdf.text("Date", rightX, y2 + 100);
-pdf.line(rightX, y2 + 115, rightX + 140, y2 + 115);
+pdf.line(rightX + 40, y2 + 100, rightX + 140, y2 + 100);
   return pdf;
 }
 
