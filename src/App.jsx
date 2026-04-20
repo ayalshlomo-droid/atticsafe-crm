@@ -406,13 +406,17 @@ pdf.line(rightX + 35, y + 90, rightX + 140, y + 90);
   return pdf;
 }
 
-  function downloadAgreementPdf() {
-    
+ function downloadAgreementPdf() {
+  if (!selected) return;
+  const pdf = buildPdf("Service Agreement", contractText);
+  pdf.save(`agreement-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
+}
+
+async function sendAgreementEmail() {
   if (!selected || !selected.email) {
     alert("Customer email is missing.");
     return;
   }
-    async function sendAgreementEmail() {
 
   try {
     const pdf = buildPdf("Service Agreement", contractText);
@@ -447,11 +451,6 @@ pdf.line(rightX + 35, y + 90, rightX + 140, y + 90);
     alert(error.message || "Failed to send agreement.");
   }
 }
-    if (!selected) return;
-    const pdf = buildPdf("Service Agreement", contractText);
-    pdf.save(`agreement-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
-  }
-
   function downloadCompletionPdf() {
     if (!selected) return;
     const pdf = buildPdf("Completion Report", completionText);
