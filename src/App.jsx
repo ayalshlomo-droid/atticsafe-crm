@@ -311,30 +311,69 @@ function App() {
   y += 20;
 
   // BODY
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
+  // BODY
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(10);
 
-  const lines = pdf.splitTextToSize(text, contentWidth);
+const lines = pdf.splitTextToSize(text, contentWidth);
 
-  lines.forEach((line) => {
-    if (y > pageHeight - 60) {
-      pdf.addPage();
-      y = 40;
-    }
+lines.forEach((line) => {
+  if (y > pageHeight - 140) {
+    pdf.addPage();
+    y = 40;
+  }
 
+  const trimmed = String(line).trim();
+  const isHeading =
+    trimmed.length > 0 &&
+    trimmed.length < 70 &&
+    trimmed === trimmed.toUpperCase() &&
+    !trimmed.includes(":");
+
+  if (isHeading) {
+    y += 8;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(11);
+    pdf.text(trimmed, margin, y);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    y += 14;
+  } else {
     pdf.text(line, margin, y);
     y += 14;
-  });
+  }
+});
 
-  // SIGNATURE LINES
-  y += 30;
+// PRICING BOX
+y += 18;
 
-  pdf.line(margin, y, margin + 200, y);
-  pdf.text("Customer Signature", margin, y + 15);
+pdf.setDrawColor(180);
+pdf.rect(margin, y, contentWidth, 70);
 
-  pdf.line(pageWidth - margin - 200, y, pageWidth - margin, y);
-  pdf.text("Contractor Signature", pageWidth - margin - 200, y + 15);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(11);
+pdf.text("PROJECT PRICING", margin + 12, y + 18);
 
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(10);
+pdf.text("Total Contract Price: ____________________", margin + 12, y + 38);
+pdf.text("Deposit: ________________________________", margin + 12, y + 54);
+pdf.text("Balance Due Upon Completion: ____________", margin + 12, y + 70);
+
+// SIGNATURE AREA
+y += 105;
+
+pdf.line(margin, y, margin + 200, y);
+pdf.text("Customer Signature", margin, y + 15);
+
+pdf.line(margin + 230, y, margin + 360, y);
+pdf.text("Date", margin + 230, y + 15);
+
+pdf.line(pageWidth - margin - 200, y, pageWidth - margin, y);
+pdf.text("Contractor Signature", pageWidth - margin - 200, y + 15);
+
+pdf.line(pageWidth - margin - 330, y, pageWidth - margin - 220, y);
+pdf.text("Date", pageWidth - margin - 330, y + 15);
   return pdf;
 }
 
