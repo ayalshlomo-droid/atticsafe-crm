@@ -445,11 +445,6 @@ Total Contract Price: $${selected.contract_price || ""}
 Deposit: $${selected.deposit || ""}
 Balance Due Upon Completion: $${selected.balance_due || ""}
 
-Customer Signature: ${selected.customer_signature || "________________"}
-Customer Signature Date: ${formatDate(selected.customer_sign_date) || "________________"}
-Contractor Signature: ${selected.contractor_signature || "________________"}
-Contractor Signature Date: ${formatDate(selected.contractor_sign_date) || "________________"}
-
 ${settings.service_agreement_fine_print || defaultServiceAgreement}` : "";
 
   const completionText = selected ? `FINAL WORK COMPLETION & CUSTOMER ACCEPTANCE
