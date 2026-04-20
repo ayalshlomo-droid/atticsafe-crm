@@ -274,6 +274,26 @@ function App() {
 
   function buildPdf(title, text) {
     const pdf = new jsPDF({ unit: "pt", format: "letter" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+let y = 40;
+
+// LOGO
+try {
+  pdf.addImage("/logo.jpg", "JPEG", 40, y, 120, 60);
+} catch (e) {}
+
+// COMPANY NAME
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(20);
+pdf.text("AtticSafe", 180, 60);
+
+// CONTACT
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(10);
+pdf.text("2511 Stenson Dr, Cedar Park, TX", 180, 75);
+pdf.text("(512) 766-9089", 180, 88);
+
+y = 120;
     const margin = 40;
     const pageWidth = pdf.internal.pageSize.getWidth() - margin * 2;
     const lineHeight = 14;
