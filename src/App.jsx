@@ -290,8 +290,11 @@ if (flattened.length) setSelectedId((current) => current || flattened[0].id);
           ? (value || null)
           : value);
 
-   const targetTable = field === "stage" ? "jobs" : "customers";
-const targetId = field === "stage" ? selectedId : selected.customer_id;
+   const jobFields = ["stage", "inspection_start"];
+
+const targetTable = jobFields.includes(field) ? "jobs" : "customers";
+const targetId = jobFields.includes(field) ? selectedId : selected.customer_id;
+
 
 const { error } = await supabase
   .from(targetTable)
