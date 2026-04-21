@@ -825,9 +825,15 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
     <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
       Calendar
     </div>
-    <div style={{ color: "var(--muted)" }}>
-      Calendar view coming next.
-    </div>
+    <FullCalendar
+  plugins={[dayGridPlugin, interactionPlugin]}
+  initialView="dayGridMonth"
+  height="auto"
+  events={customers.map(c => ({
+    title: c.stage,
+    start: c.inspection_start
+  }))}
+/>
   </div>
 ) : null}
        
