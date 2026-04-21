@@ -291,11 +291,13 @@ if (flattened.length) setSelectedId((current) => current || flattened[0].id);
           ? (value || null)
           : value);
 
-    const { error } = await supabase
-  .from("customers")
+   const targetTable = field === "stage" ? "jobs" : "customers";
+const targetId = field === "stage" ? selectedId : selected.customer_id;
+
+const { error } = await supabase
+  .from(targetTable)
   .update({ [field]: normalizedValue })
-  .eq("id", selected.customer_id);
-    if (error) alert(error.message);
+  .eq("id", targetId);
   }
 
   async function deleteSelected() {
