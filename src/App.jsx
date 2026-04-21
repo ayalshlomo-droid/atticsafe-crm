@@ -713,7 +713,11 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                   <input
   style={inputStyle}
   type="datetime-local"
-  value={selected.inspection_start || ""}
+  value={
+  selected.inspection_start
+    ? selected.inspection_start.slice(0, 16)
+    : ""
+}
   onChange={e => updateSelected("inspection_start", e.target.value)}
 />
 
