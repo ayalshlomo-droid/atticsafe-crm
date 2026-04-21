@@ -164,6 +164,7 @@ function App() {
       setAuthMessage(error.message);
     } else {
      const flattened = (data || []).map((job) => ({
+  ...(job.customers || {}),
   id: job.id,
   customer_id: job.customer_id,
   stage: job.stage,
@@ -172,9 +173,7 @@ function App() {
   job_start: job.job_start,
   job_end: job.job_end,
   completed_at: job.completed_at,
-  ...(job.customers || {})
 }));
-
 setCustomers(flattened);
 if (flattened.length) setSelectedId((current) => current || flattened[0].id);
     }
