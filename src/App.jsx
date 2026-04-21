@@ -213,23 +213,45 @@ function App() {
   }
 
   async function addCustomer(e) {
-    e.preventDefault();
-    const payload = {
-      ...form,
-      contract_price: form.contract_price ? Number(form.contract_price) : null,
-      deposit: form.deposit ? Number(form.deposit) : null,
-      balance_due: form.balance_due ? Number(form.balance_due) : null,
-      estimate_date: form.estimate_date || null,
-      expected_start_date: form.expected_start_date || null,
-      expected_finish_date: form.expected_finish_date || null,
-      customer_sign_date: form.customer_sign_date || null,
-      contractor_sign_date: form.contractor_sign_date || null,
-    };
-    const { error } = await supabase.from("customers").insert(payload);
-    if (error) {
-      alert(error.message);
-      return;
-    }
+  e.preventDefault();
+
+  // 1. create customer
+  const { data: customer, error: customerError } = await supabase
+    .from("customers")
+    .insert({
+      name: form.name,
+      phone: form.phone,
+      email: form.email,
+      address: form.address,
+      notes: form.notes,
+    })
+    .select()
+    .single();
+
+  if (customerError) {
+    alert(customerError.message);
+    return;
+  }
+
+  // 2. create job (NEW PART)
+  const { error: jobError } = await supabase
+    .from("jobs")
+    .insert({
+      customer_id: customer.id,
+      stage: "lead"
+    });
+
+  if (jobError) {
+    alert(jobError.message);
+    return;
+  }
+
+  // reset form
+  setForm(emptyForm);
+
+  // reload customers
+  await loadCustomers();
+}
     setForm(emptyForm);
     await loadCustomers();
   }
