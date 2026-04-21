@@ -558,13 +558,13 @@ async function sendAgreementEmail() {
   const totals = useMemo(() => {
     const revenue = customers.reduce((sum, c) => sum + Number(c.contract_price || 0), 0);
     return {
-      leads: customers.filter(c => c.stage === "Lead").length,
-      estimates: customers.filter(c => c.stage === "Estimate").length,
-      scheduled: customers.filter(c => c.stage === "Scheduled").length,
-      inProgress: customers.filter(c => c.stage === "In Progress").length,
-      completed: customers.filter(c => c.stage === "Completed").length,
-      revenue
-    };
+  leads: customers.filter(c => c.stage === "lead").length,
+  estimates: customers.filter(c => c.stage === "estimate_sent").length,
+  scheduled: customers.filter(c => c.stage === "scheduled").length,
+  inProgress: customers.filter(c => c.stage === "won").length,
+  completed: customers.filter(c => c.stage === "completed").length,
+  revenue
+};
   }, [customers]);
 
   const contractText = selected ? `AGREEMENT
