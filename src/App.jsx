@@ -146,12 +146,37 @@ function App() {
 
   async function loadCustomers() {
     setLoadingCustomers(true);
-    const { data, error } = await supabase.from("customers").select("*").order("estimate_date", { ascending: false });
+    const { data, error } = await supabase
+  .from("jobs")
+  .select(`
+    id,
+    customer_id,
+    stage,
+    inspection_start,
+    inspection_end,
+    job_start,
+    job_end,
+    completed_at,
+    customers (*)
+  `)
+  .order("created_at", { ascending: false });
     if (error) {
       setAuthMessage(error.message);
     } else {
-      setCustomers(data || []);
-      if ((data || []).length) setSelectedId((current) => current || data[0].id);
+     const flattened = (data || []).map((job) => ({
+  id: job.id,
+  customer_id: job.customer_id,
+  stage: job.stage,
+  inspection_start: job.inspection_start,
+  inspection_end: job.inspection_end,
+  job_start: job.job_start,
+  job_end: job.job_end,
+  completed_at: job.completed_at,
+  ...(job.customers || {})
+}));
+
+setCustomers(flattened);
+if (flattened.length) setSelectedId((current) => current || flattened[0].id);
     }
     setLoadingCustomers(false);
   }
@@ -266,14 +291,20 @@ function App() {
           ? (value || null)
           : value);
 
-    const { error } = await supabase.from("customers").update({ [field]: normalizedValue }).eq("id", selectedId);
+    const { error } = await supabase
+  .from("customers")
+  .update({ [field]: normalizedValue })
+  .eq("id", selected.customer_id);
     if (error) alert(error.message);
   }
 
   async function deleteSelected() {
     if (!selectedId) return;
     if (!window.confirm("Delete this customer?")) return;
-    const { error } = await supabase.from("customers").delete().eq("id", selectedId);
+    const { error } = await supabase
+  .from("jobs")
+  .delete()
+  .eq("id", selectedId);
     if (error) {
       alert(error.message);
       return;
