@@ -252,9 +252,7 @@ function App() {
   // reload customers
   await loadCustomers();
 }
-    setForm(emptyForm);
-    await loadCustomers();
-  }
+    
 
   async function updateSelected(field, value) {
     const selected = customers.find(c => c.id === selectedId);
