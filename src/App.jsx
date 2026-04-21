@@ -662,6 +662,12 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
           <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ padding: "8px 12px", borderRadius: 999, background: "#ecfdf5", color: "#047857", border: "1px solid #a7f3d0" }}>{session.user.email}</div>
             <button style={activeTab === "customers" ? primaryButton : buttonStyle} onClick={() => setActiveTab("customers")}>Customers</button>
+            <button
+  style={activeTab === "calendar" ? primaryButton : buttonStyle}
+  onClick={() => setActiveTab("calendar")}
+>
+  Calendar
+</button>
             <button style={activeTab === "documents" ? primaryButton : buttonStyle} onClick={() => setActiveTab("documents")}>Documents</button>
             <button style={activeTab === "settings" ? primaryButton : buttonStyle} onClick={() => setActiveTab("settings")}>Settings</button>
             <button style={buttonStyle} onClick={logout}>Log out</button>
