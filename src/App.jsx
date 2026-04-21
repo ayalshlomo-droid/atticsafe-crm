@@ -815,8 +815,17 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
               <pre style={{ whiteSpace: "pre-wrap", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 14, lineHeight: 1.65 }}>{completionText || "Select a customer to preview completion report."}</pre>
             </div>
           </div>
-        ) : null}
-
+      {activeTab === "calendar" ? (
+  <div style={cardStyle}>
+    <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
+      Calendar
+    </div>
+    <div style={{ color: "var(--muted)" }}>
+      Calendar view coming next.
+    </div>
+  </div>
+) : null}
+       
         {activeTab === "settings" ? (
           <div style={cardStyle}>
             <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 16 }}>Global Fine Print Settings</div>
