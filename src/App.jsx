@@ -829,8 +829,10 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
   plugins={[dayGridPlugin, interactionPlugin]}
   initialView="dayGridMonth"
   height="auto"
-  events={customers.map(c => ({
-    title: c.stage,
+  events={customers
+  .filter(c => c.inspection_start)
+  .map(c => ({
+    title: c.name,
     start: c.inspection_start
   }))}
 />
