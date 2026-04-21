@@ -259,11 +259,11 @@ if (flattened.length) setSelectedId((current) => current || flattened[0].id);
   }
 
   // 2. create job (NEW PART)
-  const { error: jobError } = await supabase
+    const { error: jobError } = await supabase
     .from("jobs")
     .insert({
       customer_id: customer.id,
-      stage: "lead"
+      stage: form.stage || "lead"
     });
 
   if (jobError) {
