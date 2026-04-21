@@ -709,11 +709,12 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 
                   <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
                     <select style={inputStyle} value={selected.stage || "Lead"} onChange={e => updateSelected("stage", e.target.value)}>
-                      <option>Lead</option>
-                      <option>Estimate</option>
-                      <option>Scheduled</option>
-                      <option>In Progress</option>
-                      <option>Completed</option>
+                     <option value="lead">lead</option>
+<option value="inspection_scheduled">inspection_scheduled</option>
+<option value="estimate_sent">estimate_sent</option>
+<option value="won">won</option>
+<option value="scheduled">scheduled</option>
+<option value="completed">completed</option>
                     </select>
                     <input style={inputStyle} type="date" value={selected.estimate_date ? String(selected.estimate_date).slice(0,10) : ""} onChange={e => updateSelected("estimate_date", e.target.value)} />
                   </div>
@@ -756,11 +757,12 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                 <input style={inputStyle} value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="Email" />
                 <input style={inputStyle} value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="Address" />
                 <select style={inputStyle} value={form.stage} onChange={e => setForm({...form, stage: e.target.value})}>
-                  <option>Lead</option>
-                  <option>Estimate</option>
-                  <option>Scheduled</option>
-                  <option>In Progress</option>
-                  <option>Completed</option>
+                  <option value="lead">lead</option>
+<option value="inspection_scheduled">inspection_scheduled</option>
+<option value="estimate_sent">estimate_sent</option>
+<option value="won">won</option>
+<option value="scheduled">scheduled</option>
+<option value="completed">completed</option>
                 </select>
                 <input style={inputStyle} type="date" value={form.estimate_date} onChange={e => setForm({...form, estimate_date: e.target.value})} />
                 <input style={inputStyle} type="date" value={form.expected_start_date} onChange={e => setForm({...form, expected_start_date: e.target.value})} />
