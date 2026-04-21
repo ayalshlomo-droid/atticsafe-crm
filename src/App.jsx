@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import jsPDF from "jspdf";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import "@fullcalendar/daygrid/index.css";
 
 const supabaseUrl = "https://sbmlhkniysjflvaxwomp.supabase.co";
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNibWxoa25peXNqZmx2YXh3b21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDQzMTMsImV4cCI6MjA5MjE4MDMxM30.Gc7IZt0czP6XM1FOsGUMVtyjoZZSZd1gzc2pwBLTNak";
