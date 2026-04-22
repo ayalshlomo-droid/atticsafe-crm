@@ -776,13 +776,17 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                   <input style={inputStyle} value={selected.phone || ""} onChange={e => updateSelected("phone", e.target.value)} placeholder="Phone" />
                   <input style={inputStyle} value={selected.email || ""} onChange={e => updateSelected("email", e.target.value)} placeholder="Email" />
                   <input style={inputStyle} value={selected.address || ""} onChange={e => updateSelected("address", e.target.value)} placeholder="Address" />
-                  <input
-  style={inputStyle}
-  type="datetime-local"
- value={toLocalInputValue(selected.inspection_start)}
-onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.value))}
-/>
-
+                 <div>
+  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+    Inspection Date & Time
+  </div>
+  <input
+    style={inputStyle}
+    type="datetime-local"
+    value={toLocalInputValue(selected.inspection_start)}
+    onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.value))}
+  />
+</div>
                   <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
                     <select style={inputStyle} value={selected.stage || "Lead"} onChange={e => updateSelected("stage", e.target.value)}>
                      <option value="lead">lead</option>
