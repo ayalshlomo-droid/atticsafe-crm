@@ -905,13 +905,14 @@ onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.v
         color: "#2563eb"
       })),
 
-    ...customers
-      .filter(c => c.stage === "scheduled" && c.job_start)
-      .map(c => ({
-        title: `${c.name} - Job`,
-        start: c.job_start,
-        color: "#16a34a"
-      }))
+   ...customers
+  .filter(c => c.stage === "scheduled" && c.job_start)
+  .map(c => ({
+    title: `${c.name} - Job`,
+    start: String(c.job_start).slice(0, 10),
+    allDay: true,
+    color: "#16a34a"
+  }))
   ]}
 />
   </div>
