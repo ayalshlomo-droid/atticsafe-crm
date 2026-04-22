@@ -904,29 +904,30 @@ onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.v
   plugins={[dayGridPlugin, interactionPlugin]}
   initialView="dayGridMonth"
   height="auto"
+  eventClick={handleEventClick}
   events={[
     ...customers
       .filter(c => c.inspection_start)
       .map(c => ({
-  title: `${c.name} - Inspection`,
-  start: c.inspection_start,
-  color: "#2563eb",
-  extendedProps: {
-    customerId: c.id
-  }
-}))
+        title: `${c.name} - Inspection`,
+        start: c.inspection_start,
+        color: "#2563eb",
+        extendedProps: {
+          customerId: c.id
+        }
+      })),
 
-   ...customers
-  .filter(c => c.stage === "scheduled" && c.job_start)
- .map(c => ({
-  title: `${c.name} - Job`,
-  start: String(c.job_start).slice(0, 10),
-  allDay: true,
-  color: "#16a34a",
-  extendedProps: {
-    customerId: c.id
-  }
-}))
+    ...customers
+      .filter(c => c.stage === "scheduled" && c.job_start)
+      .map(c => ({
+        title: `${c.name} - Job`,
+        start: String(c.job_start).slice(0, 10),
+        allDay: true,
+        color: "#16a34a",
+        extendedProps: {
+          customerId: c.id
+        }
+      }))
   ]}
 />
   </div>
