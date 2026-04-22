@@ -294,7 +294,7 @@ if (flattened.length) setSelectedId((current) => current || flattened[0].id);
           ? (value || null)
           : value);
 
-   const jobFields = ["stage", "inspection_start"];
+   const jobFields = ["stage", "inspection_start", "job_start", "job_end"];
 
 const targetTable = jobFields.includes(field) ? "jobs" : "customers";
 const targetId = jobFields.includes(field) ? selectedId : selected.customer_id;
@@ -791,6 +791,22 @@ onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.v
                     <input style={inputStyle} type="date" value={selected.expected_start_date ? String(selected.expected_start_date).slice(0,10) : ""} onChange={e => updateSelected("expected_start_date", e.target.value)} />
                     <input style={inputStyle} type="date" value={selected.expected_finish_date ? String(selected.expected_finish_date).slice(0,10) : ""} onChange={e => updateSelected("expected_finish_date", e.target.value)} />
                   </div>
+                  <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+  <input
+    style={inputStyle}
+    type="date"
+    value={selected.job_start ? String(selected.job_start).slice(0, 10) : ""}
+    onChange={e => updateSelected("job_start", e.target.value)}
+    placeholder="Job start"
+  />
+  <input
+    style={inputStyle}
+    type="date"
+    value={selected.job_end ? String(selected.job_end).slice(0, 10) : ""}
+    onChange={e => updateSelected("job_end", e.target.value)}
+    placeholder="Job end"
+  />
+</div>
 
                   <div className="three-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr 1fr" }}>
                     <input style={inputStyle} value={selected.contract_price ?? ""} onChange={e => updateSelected("contract_price", e.target.value)} placeholder="Contract price" />
