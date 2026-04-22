@@ -768,7 +768,7 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
               </div>
             </div>
 
-         <div style={cardStyle}>
+        <div style={cardStyle}>
   <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
     Customer Info {selected?.job_number ? `- Job #${selected.job_number}` : ""}
   </div>
@@ -876,7 +876,6 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
     Delete
   </button>
 </div>
-                  </div>
             
               ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
             </div>
