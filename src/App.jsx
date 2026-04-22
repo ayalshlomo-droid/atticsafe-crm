@@ -822,17 +822,7 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
   />
 </div>
 
-<div>
-  <div style={{ fontSize: 12, color: "var(--muted)" }}>
-    Job End Date
-  </div>
-  <input
-    style={inputStyle}
-    type="date"
-    value={selected.job_end ? String(selected.job_end).slice(0, 10) : ""}
-    onChange={e => updateSelected("job_end", e.target.value)}
-  />
-</div>
+
  <div>
   <div style={{ fontSize: 12, color: "var(--muted)" }}>
     Job End Date
@@ -877,7 +867,9 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
   </button>
 </div>
                 </div>
-              ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
+                           ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
+            </div>
+
             <div style={cardStyle}>
               <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Add Customer</div>
               <form onSubmit={addCustomer} style={{ display: "grid", gap: 12 }}>
