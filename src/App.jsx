@@ -516,6 +516,42 @@ async function sendAgreementEmail() {
     pdf.save(`completion-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
   }
   async function sendCompletionEmail() {
+    async function sendInspectionConfirmationEmail() {
+  if (!selected || !selected.email) {
+    alert("Customer email is missing.");
+    return;
+  }
+
+  if (!selected.inspection_start) {
+    alert("Inspection date and time are missing.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/send-inspection-confirmation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        to: selected.email,
+        customerName: selected.name || "Customer",
+        inspectionStart: selected.inspection_start,
+        address: selected.address || ""
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to send inspection confirmation");
+    }
+
+    alert("Inspection confirmation sent successfully.");
+  } catch (error) {
+    alert(error.message || "Failed to send inspection confirmation.");
+  }
+}
   if (!selected || !selected.email) {
     alert("Customer email is missing.");
     return;
