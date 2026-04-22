@@ -768,8 +768,9 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
               </div>
             </div>
 
-            <div style={cardStyle}>
-              <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Customer Info</div>
+           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
+  Customer Info {selected?.job_number ? `- Job #${selected.job_number}` : ""}
+</div>
               {selected ? (
                 <div style={{ display: "grid", gap: 12 }}>
                   <input style={inputStyle} value={selected.name || ""} onChange={e => updateSelected("name", e.target.value)} placeholder="Name" />
