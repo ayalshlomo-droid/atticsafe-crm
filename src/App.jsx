@@ -896,7 +896,6 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
     value={form.estimate_date || ""}
     onChange={e => setForm({ ...form, estimate_date: e.target.value })}
   />
-</div>
 
 <div>
   <div style={{ fontSize: 12, color: "var(--muted)" }}>
