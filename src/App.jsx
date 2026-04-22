@@ -864,7 +864,7 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                     <input style={inputStyle} type="date" value={selected.contractor_sign_date ? String(selected.contractor_sign_date).slice(0,10) : ""} onChange={e => updateSelected("contractor_sign_date", e.target.value)} />
                   </div>
 
-                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
   <button style={buttonStyle} onClick={sendInspectionConfirmationEmail}>
     Send Inspection Confirmation
   </button>
@@ -876,10 +876,8 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
     Delete
   </button>
 </div>
-            
+                </div>
               ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
-            </div>
-
             <div style={cardStyle}>
               <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Add Customer</div>
               <form onSubmit={addCustomer} style={{ display: "grid", gap: 12 }}>
