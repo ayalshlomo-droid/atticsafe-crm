@@ -129,8 +129,8 @@ function App() {
   const emptyForm = {
     name: "", phone: "", email: "", address: "", stage: "Lead", notes: "",
     service_scope: "", completion_scope: "", contract_price: "", deposit: "",
-    balance_due: "", report_no: "", estimate_date: "", expected_start_date: "",
-    expected_finish_date: "", customer_signature: "", customer_sign_date: "",
+    balance_due: "", report_no: "", estimate_date: "", job_start: "",
+job_end: "", customer_signature: "", customer_sign_date: "",
     contractor_signature: "Eli Solomon", contractor_sign_date: ""
   };
   const [form, setForm] = useState(emptyForm);
@@ -768,10 +768,11 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
               </div>
             </div>
 
-           <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
-  Customer Info {selected?.job_number ? `- Job #${selected.job_number}` : ""}
-</div>
-              {selected ? (
+         <div style={cardStyle}>
+  <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
+    Customer Info {selected?.job_number ? `- Job #${selected.job_number}` : ""}
+  </div>
+  {selected ? (
                 <div style={{ display: "grid", gap: 12 }}>
                   <input style={inputStyle} value={selected.name || ""} onChange={e => updateSelected("name", e.target.value)} placeholder="Name" />
                   <input style={inputStyle} value={selected.phone || ""} onChange={e => updateSelected("phone", e.target.value)} placeholder="Phone" />
@@ -797,30 +798,39 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 <option value="scheduled">scheduled</option>
 <option value="completed">completed</option>
                     </select>
-                    <div>
+                   <div>
   <div style={{ fontSize: 12, color: "var(--muted)" }}>
     Estimate Sent Date
   </div>
   <input
     style={inputStyle}
     type="date"
-    value={selected.estimate_date ? String(selected.estimate_date).slice(0,10) : ""}
-    onChange={e => updateSelected("estimate_date", e.target.value)}
+    value={form.estimate_date || ""}
+    onChange={e => setForm({ ...form, estimate_date: e.target.value })}
   />
 </div>
-                  </div>
 
-            
-                  <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
- <div>
+<div>
   <div style={{ fontSize: 12, color: "var(--muted)" }}>
     Scheduled Job Date
   </div>
   <input
     style={inputStyle}
     type="date"
-    value={selected.job_start ? String(selected.job_start).slice(0, 10) : ""}
-    onChange={e => updateSelected("job_start", e.target.value)}
+    value={form.job_start || ""}
+    onChange={e => setForm({ ...form, job_start: e.target.value })}
+  />
+</div>
+
+<div>
+  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+    Job End Date
+  </div>
+  <input
+    style={inputStyle}
+    type="date"
+    value={form.job_end || ""}
+    onChange={e => setForm({ ...form, job_end: e.target.value })}
   />
 </div>
  <div>
