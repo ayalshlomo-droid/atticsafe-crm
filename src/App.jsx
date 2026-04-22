@@ -798,15 +798,15 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 <option value="scheduled">scheduled</option>
 <option value="completed">completed</option>
                     </select>
-                   <div>
+                  <div>
   <div style={{ fontSize: 12, color: "var(--muted)" }}>
     Estimate Sent Date
   </div>
   <input
     style={inputStyle}
     type="date"
-    value={form.estimate_date || ""}
-    onChange={e => setForm({ ...form, estimate_date: e.target.value })}
+    value={selected.estimate_date ? String(selected.estimate_date).slice(0, 10) : ""}
+    onChange={e => updateSelected("estimate_date", e.target.value)}
   />
 </div>
 
@@ -817,8 +817,8 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
   <input
     style={inputStyle}
     type="date"
-    value={form.job_start || ""}
-    onChange={e => setForm({ ...form, job_start: e.target.value })}
+    value={selected.job_start ? String(selected.job_start).slice(0, 10) : ""}
+    onChange={e => updateSelected("job_start", e.target.value)}
   />
 </div>
 
@@ -829,8 +829,8 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
   <input
     style={inputStyle}
     type="date"
-    value={form.job_end || ""}
-    onChange={e => setForm({ ...form, job_end: e.target.value })}
+    value={selected.job_end ? String(selected.job_end).slice(0, 10) : ""}
+    onChange={e => updateSelected("job_end", e.target.value)}
   />
 </div>
  <div>
