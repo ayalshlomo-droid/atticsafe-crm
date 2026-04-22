@@ -822,13 +822,17 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
     onChange={e => updateSelected("job_start", e.target.value)}
   />
 </div>
+ <div>
+  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+    Job End Date
+  </div>
   <input
     style={inputStyle}
     type="date"
     value={selected.job_end ? String(selected.job_end).slice(0, 10) : ""}
     onChange={e => updateSelected("job_end", e.target.value)}
-    placeholder="Job end"
   />
+</div>
 </div>
 
                   <div className="three-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr 1fr" }}>
