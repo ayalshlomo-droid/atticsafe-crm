@@ -802,8 +802,18 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                     <input style={inputStyle} type="date" value={selected.contractor_sign_date ? String(selected.contractor_sign_date).slice(0,10) : ""} onChange={e => updateSelected("contractor_sign_date", e.target.value)} />
                   </div>
 
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <button style={{...buttonStyle, color: "white", background: "var(--danger)", borderColor: "var(--danger)"}} onClick={deleteSelected}>Delete</button>
+                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+  <button style={buttonStyle} onClick={sendInspectionConfirmationEmail}>
+    Send Inspection Confirmation
+  </button>
+
+  <button
+    style={{ ...buttonStyle, color: "white", background: "var(--danger)", borderColor: "var(--danger)" }}
+    onClick={deleteSelected}
+  >
+    Delete
+  </button>
+</div>
                   </div>
                 </div>
               ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
