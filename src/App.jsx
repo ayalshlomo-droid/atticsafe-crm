@@ -787,10 +787,7 @@ onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.v
                     <input style={inputStyle} type="date" value={selected.estimate_date ? String(selected.estimate_date).slice(0,10) : ""} onChange={e => updateSelected("estimate_date", e.target.value)} />
                   </div>
 
-                  <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
-                    <input style={inputStyle} type="date" value={selected.expected_start_date ? String(selected.expected_start_date).slice(0,10) : ""} onChange={e => updateSelected("expected_start_date", e.target.value)} />
-                    <input style={inputStyle} type="date" value={selected.expected_finish_date ? String(selected.expected_finish_date).slice(0,10) : ""} onChange={e => updateSelected("expected_finish_date", e.target.value)} />
-                  </div>
+            
                   <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
   <input
     style={inputStyle}
