@@ -330,6 +330,18 @@ const { error } = await supabase
       return value;
     }
   }
+  function toLocalInputValue(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function fromLocalInputValue(value) {
+  if (!value) return null;
+  return new Date(value).toISOString();
+}
 
   function buildPdf(title, text) {
   const pdf = new jsPDF({ unit: "pt", format: "letter" });
@@ -759,12 +771,8 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                   <input
   style={inputStyle}
   type="datetime-local"
-  value={
-  selected.inspection_start
-    ? selected.inspection_start.slice(0, 16)
-    : ""
-}
-  onChange={e => updateSelected("inspection_start", e.target.value)}
+ value={toLocalInputValue(selected.inspection_start)}
+onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.value))}
 />
 
                   <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
