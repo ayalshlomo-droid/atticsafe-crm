@@ -515,8 +515,7 @@ async function sendAgreementEmail() {
     const pdf = buildPdf("Completion Report", completionText);
     pdf.save(`completion-${(selected.name || "customer").replace(/\s+/g, "-").toLowerCase()}.pdf`);
   }
-  async function sendCompletionEmail() {
-    async function sendInspectionConfirmationEmail() {
+  async function sendInspectionConfirmationEmail() {
   if (!selected || !selected.email) {
     alert("Customer email is missing.");
     return;
@@ -552,6 +551,8 @@ async function sendAgreementEmail() {
     alert(error.message || "Failed to send inspection confirmation.");
   }
 }
+
+async function sendCompletionEmail() {
   if (!selected || !selected.email) {
     alert("Customer email is missing.");
     return;
@@ -590,7 +591,6 @@ async function sendAgreementEmail() {
     alert(error.message || "Failed to send completion report.");
   }
 }
-
   const filteredCustomers = customers.filter((c) => {
   const q = customerSearch.trim().toLowerCase();
   if (!q) return true;
@@ -815,7 +815,7 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
   </button>
 </div>
                   </div>
-                </div>
+            
               ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
             </div>
 
