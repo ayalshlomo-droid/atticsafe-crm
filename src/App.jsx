@@ -320,6 +320,14 @@ const { error } = await supabase
     setSelectedId(null);
     await loadCustomers();
   }
+  function handleEventClick(info) {
+  const customerId = info.event.extendedProps.customerId;
+
+  if (!customerId) return;
+
+  setActiveTab("customers");
+  setSelectedId(customerId);
+}
 
   function formatDate(value) {
     if (!value) return "";
@@ -900,19 +908,25 @@ onChange={e => updateSelected("inspection_start", fromLocalInputValue(e.target.v
     ...customers
       .filter(c => c.inspection_start)
       .map(c => ({
-        title: `${c.name} - Inspection`,
-        start: c.inspection_start,
-        color: "#2563eb"
-      })),
+  title: `${c.name} - Inspection`,
+  start: c.inspection_start,
+  color: "#2563eb",
+  extendedProps: {
+    customerId: c.id
+  }
+}))
 
    ...customers
   .filter(c => c.stage === "scheduled" && c.job_start)
-  .map(c => ({
-    title: `${c.name} - Job`,
-    start: String(c.job_start).slice(0, 10),
-    allDay: true,
-    color: "#16a34a"
-  }))
+ .map(c => ({
+  title: `${c.name} - Job`,
+  start: String(c.job_start).slice(0, 10),
+  allDay: true,
+  color: "#16a34a",
+  extendedProps: {
+    customerId: c.id
+  }
+}))
   ]}
 />
   </div>
