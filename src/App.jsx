@@ -796,7 +796,17 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 <option value="scheduled">scheduled</option>
 <option value="completed">completed</option>
                     </select>
-                    <input style={inputStyle} type="date" value={selected.estimate_date ? String(selected.estimate_date).slice(0,10) : ""} onChange={e => updateSelected("estimate_date", e.target.value)} />
+                    <div>
+  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+    Estimate Sent Date
+  </div>
+  <input
+    style={inputStyle}
+    type="date"
+    value={selected.estimate_date ? String(selected.estimate_date).slice(0,10) : ""}
+    onChange={e => updateSelected("estimate_date", e.target.value)}
+  />
+</div>
                   </div>
 
             
