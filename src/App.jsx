@@ -811,13 +811,17 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 
             
                   <div className="two-col" style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+ <div>
+  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+    Scheduled Job Date
+  </div>
   <input
     style={inputStyle}
     type="date"
     value={selected.job_start ? String(selected.job_start).slice(0, 10) : ""}
     onChange={e => updateSelected("job_start", e.target.value)}
-    placeholder="Job start"
   />
+</div>
   <input
     style={inputStyle}
     type="date"
