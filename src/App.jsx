@@ -734,15 +734,6 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
           </div>
         </div>
 
-        <div className="stats" style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-          <StatCard label="Leads" value={totals.leads} />
-          <StatCard label="Estimates" value={totals.estimates} />
-          <StatCard label="Scheduled" value={totals.scheduled} />
-          <StatCard label="In Progress" value={totals.inProgress} />
-          <StatCard label="Completed" value={totals.completed} />
-          <StatCard label="Revenue" value={`$${totals.revenue.toLocaleString()}`} />
-        </div>
-
         {activeTab === "customers" ? (
           <div className="three-col" style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr 1.2fr 1fr" }}>
             <div style={cardStyle}>
