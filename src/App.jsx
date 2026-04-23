@@ -928,7 +928,17 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 <option value="scheduled">scheduled</option>
 <option value="completed">completed</option>
                 </select>
-             
+              <div>
+  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+    Estimate Sent Date
+  </div>
+  <input
+    style={inputStyle}
+    type="date"
+    value={form.estimate_date || ""}
+    onChange={e => setForm({ ...form, estimate_date: e.target.value })}
+  />
+</div>
 
 <div>
   <div style={{ fontSize: 12, color: "var(--muted)" }}>
@@ -940,7 +950,19 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
     value={form.job_start || ""}
     onChange={e => setForm({ ...form, job_start: e.target.value })}
   />
+</div>
 
+<div>
+  <div style={{ fontSize: 12, color: "var(--muted)" }}>
+    Job End Date
+  </div>
+  <input
+    style={inputStyle}
+    type="date"
+    value={form.job_end || ""}
+    onChange={e => setForm({ ...form, job_end: e.target.value })}
+  />
+</div>
                 <textarea style={{...inputStyle, minHeight: 90}} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Lead notes" />
                 <button type="submit" style={primaryButton}>Save customer</button>
               </form>
