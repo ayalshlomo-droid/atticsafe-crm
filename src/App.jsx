@@ -675,8 +675,8 @@ Email: ${selected.email || ""}
 Contractor: AtticSafe, 2511 Stenson Dr, Cedar Park, TX 78613
 
 Contract / Job #: ${selected.report_no || ""}
-Expected Start Date: ${formatDate(selected.expected_start_date)}
-Expected Completion Date: ${formatDate(selected.expected_finish_date)}
+Expected Start Date: ${formatDate(selected.job_start)}
+Expected Completion Date: ${formatDate(selected.job_end)}
 
 CUSTOM SCOPE OF WORK
 ${selected.service_scope || ""}
@@ -695,9 +695,8 @@ Customer Name(s): ${selected.name || ""}
 Property Address: ${selected.address || ""}
 Project Manager: Eli Solomon
 Project Manager Phone: (512) 766-9089
-Project Start Date: ${formatDate(selected.expected_start_date)}
-Project Completion Date: ${formatDate(selected.expected_finish_date)}
-
+Project Start Date: ${formatDate(selected.job_start)}
+Project Completion Date: ${formatDate(selected.job_end)}
 Work Performed
 ${selected.completion_scope || ""}
 
