@@ -930,17 +930,6 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                 </select>
              
 
-<div>
-  <div style={{ fontSize: 12, color: "var(--muted)" }}>
-    Job End Date
-  </div>
-  <input
-    style={inputStyle}
-    type="date"
-    value={form.job_end || ""}
-    onChange={e => setForm({ ...form, job_end: e.target.value })}
-  />
-</div>
                 <textarea style={{...inputStyle, minHeight: 90}} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Lead notes" />
                 <button type="submit" style={primaryButton}>Save customer</button>
               </form>
