@@ -365,15 +365,21 @@ async function saveSelected() {
   setSelectedId(customerId);
 }
 
-  function formatDate(value) {
-    if (!value) return "";
-    try {
-      const d = new Date(value);
-      return d.toLocaleDateString();
-    } catch {
-      return value;
+ function formatDate(value) {
+  if (!value) return "";
+
+  try {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [year, month, day] = value.split("-");
+      return `${Number(month)}/${Number(day)}/${year}`;
     }
+
+    const d = new Date(value);
+    return d.toLocaleDateString();
+  } catch {
+    return value;
   }
+}
   function toLocalInputValue(value) {
   if (!value) return "";
   const d = new Date(value);
