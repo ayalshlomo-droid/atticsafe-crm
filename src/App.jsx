@@ -282,30 +282,66 @@ if (flattened.length) setSelectedId((current) => current || flattened[0].id);
 }
     
 
-  async function updateSelected(field, value) {
-    const selected = customers.find(c => c.id === selectedId);
-    if (!selected) return;
-    setCustomers(prev => prev.map(c => c.id === selectedId ? { ...c, [field]: value } : c));
+ function updateSelected(field, value) {
+  setCustomers(prev =>
+    prev.map(c =>
+      c.id === selectedId ? { ...c, [field]: value } : c
+    )
+  );
+}
+async function saveSelected() {
+  const selected = customers.find(c => c.id === selectedId);
+  if (!selected) return;
 
-    const normalizedValue =
-      ["contract_price", "deposit", "balance_due"].includes(field)
-        ? (value ? Number(value) : null)
-        : (["estimate_date", "expected_start_date", "expected_finish_date", "customer_sign_date", "contractor_sign_date"].includes(field)
-          ? (value || null)
-          : value);
+  const customerPayload = {
+    name: selected.name || "",
+    phone: selected.phone || "",
+    email: selected.email || "",
+    address: selected.address || "",
+    notes: selected.notes || "",
+    service_scope: selected.service_scope || "",
+    completion_scope: selected.completion_scope || "",
+    contract_price: selected.contract_price ? Number(selected.contract_price) : null,
+    deposit: selected.deposit ? Number(selected.deposit) : null,
+    balance_due: selected.balance_due ? Number(selected.balance_due) : null,
+    report_no: selected.report_no || "",
+    estimate_date: selected.estimate_date || null,
+    customer_signature: selected.customer_signature || "",
+    customer_sign_date: selected.customer_sign_date || null,
+    contractor_signature: selected.contractor_signature || "",
+    contractor_sign_date: selected.contractor_sign_date || null,
+  };
 
-   const jobFields = ["stage", "inspection_start", "job_start", "job_end"];
+  const jobPayload = {
+    stage: selected.stage || "lead",
+    inspection_start: selected.inspection_start || null,
+    job_start: selected.job_start || null,
+    job_end: selected.job_end || null,
+  };
 
-const targetTable = jobFields.includes(field) ? "jobs" : "customers";
-const targetId = jobFields.includes(field) ? selectedId : selected.customer_id;
+  const { error: customerError } = await supabase
+    .from("customers")
+    .update(customerPayload)
+    .eq("id", selected.customer_id);
 
-
-const { error } = await supabase
-  .from(targetTable)
-  .update({ [field]: normalizedValue })
-  .eq("id", targetId);
+  if (customerError) {
+    alert(customerError.message);
+    return;
   }
 
+  const { error: jobError } = await supabase
+    .from("jobs")
+    .update(jobPayload)
+    .eq("id", selected.id);
+
+  if (jobError) {
+    alert(jobError.message);
+    return;
+  }
+
+  alert("Customer saved.");
+  await loadCustomers();
+}
   async function deleteSelected() {
     if (!selectedId) return;
     if (!window.confirm("Delete this customer?")) return;
@@ -846,16 +882,23 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
                   </div>
 
                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-  <button style={buttonStyle} onClick={sendInspectionConfirmationEmail}>
-    Send Inspection Confirmation
-  </button>
+ <button style={buttonStyle} onClick={sendInspectionConfirmationEmail}>
+  Send Inspection Confirmation
+</button>
 
-  <button
-    style={{ ...buttonStyle, color: "white", background: "var(--danger)", borderColor: "var(--danger)" }}
-    onClick={deleteSelected}
-  >
-    Delete
-  </button>
+<button
+  style={primaryButton}
+  onClick={saveSelected}
+>
+  Save Changes
+</button>
+
+<button
+  style={{ ...buttonStyle, color: "white", background: "var(--danger)", borderColor: "var(--danger)" }}
+  onClick={deleteSelected}
+>
+  Delete
+</button>
 </div>
                 </div>
                            ) : <div style={{ color: "var(--muted)" }}>Select a customer.</div>}
