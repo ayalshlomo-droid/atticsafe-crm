@@ -365,17 +365,21 @@ async function saveSelected() {
   setSelectedId(customerId);
 }
 
- function formatDate(value) {
+function formatDate(value) {
   if (!value) return "";
 
   try {
-    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      const [year, month, day] = value.split("-");
-      return `${Number(month)}/${Number(day)}/${year}`;
+    if (typeof value === "string") {
+      const datePart = value.slice(0, 10);
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+        const [year, month, day] = datePart.split("-");
+        return `${Number(month)}/${Number(day)}/${year}`;
+      }
     }
 
     const d = new Date(value);
-    return d.toLocaleDateString();
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
   } catch {
     return value;
   }
