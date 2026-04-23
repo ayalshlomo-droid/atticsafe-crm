@@ -932,18 +932,6 @@ ${settings.completion_report_fine_print || defaultCompletionFinePrint}` : "";
 
 <div>
   <div style={{ fontSize: 12, color: "var(--muted)" }}>
-    Scheduled Job Date
-  </div>
-  <input
-    style={inputStyle}
-    type="date"
-    value={form.job_start || ""}
-    onChange={e => setForm({ ...form, job_start: e.target.value })}
-  />
-</div>
-
-<div>
-  <div style={{ fontSize: 12, color: "var(--muted)" }}>
     Job End Date
   </div>
   <input
